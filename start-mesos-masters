@@ -11,29 +11,31 @@ zk=$2
 
 image="mesos:1.2.0"
 name_prefix=mesos-master
-network=mesos
-cluster_name=$name_prefix
 labels="--label mesos-master=yes"
 port=5050
 
 for i in $(seq 1 $n); do
-    MESOS_ADVERTISE_IP=`hostname -i`
-    MESOS_ADVERTISE_PORT=`. ./get-random-port`
-    MESOS_HOSTNAME_LOOKUP=false
-    MESOS_QUORUM=$quorum
-    MESOS_ZK=$zk
-    MESOS_WORK_DIR=/var/lib/mesos/master
+
+    # export MESOS_ADVERTISE_IP=10.196.23.250
+    # export MESOS_ADVERTISE_PORT=30001
+    # export MESOS_QUORUM=2
+    # export MESOS_WORK_DIR=/var/lib/mesos/master
+    # export MESOS_HOSTNAME=den00qtz.us.oracle.com
+    # export MESOS_ZK=zk://10.196.23.250:33325,10.196.23.250:33324,10.196.23.250:33323/mesos
+
+    name="${name_prefix}-${i}"
+    port=`. ./get-random-port`
 
     docker run -d \
-           -p ${MESOS_ADVERTISE_PORT}:$port \
-           -e MESOS_ADVERTISE_IP=$MESOS_ADVERTISE_IP \
-           -e MESOS_ADVERTISE_PORT=$MESOS_ADVERTISE_PORT \
-           -e MESOS_HOSTNAME_LOOKUP=$MESOS_HOSTNAME_LOOKUP \
-           -e MESOS_ZK=$MESOS_ZK \
-           -e MESOS_WORK_DIR=$MESOS_WORK_DIR \
+           -p $port:5050 \
+           -e MESOS_ADVERTISE_IP=`hostname -i` \
+           -e MESOS_ADVERTISE_PORT=${port} \
            -e MESOS_QUORUM=${quorum} \
-           -e MESOS_CLUSTER=$cluster_name \
-           --name "${name_prefix}-${i}" \
+           -e MESOS_WORK_DIR=/var/lib/mesos/master \
+           -e MESOS_ZK="${zk}" \
+           -e MESOS_HOSTNAME=`hostname -f` \
+           -e MESOS_CLUSTER=mesos \
+           --name "${name}" \
            $labels \
            ${image} \
            "mesos-master"
