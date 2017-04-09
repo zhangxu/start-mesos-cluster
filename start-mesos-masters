@@ -15,14 +15,6 @@ labels="--label mesos-master=yes"
 port=5050
 
 for i in $(seq 1 $n); do
-
-    # export MESOS_ADVERTISE_IP=10.196.23.250
-    # export MESOS_ADVERTISE_PORT=30001
-    # export MESOS_QUORUM=2
-    # export MESOS_WORK_DIR=/var/lib/mesos/master
-    # export MESOS_HOSTNAME=den00qtz.us.oracle.com
-    # export MESOS_ZK=zk://10.196.23.250:33325,10.196.23.250:33324,10.196.23.250:33323/mesos
-
     name="${name_prefix}-${i}"
     port=`. ./get-random-port`
 
