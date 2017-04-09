@@ -6,56 +6,35 @@ if [[ "$n" == "0" ]]; then
     n=3
 fi
 
-image="zk:3.4.10"
-name_prefix=zoo
-listening_port=2888
-election_port=3888
-network=zoo
-labels="--label inside-zoo=yes"
+quorum=$( echo "$n / 2 + 1" | bc )
+zk=$2
 
-gen_cfg() {
-    cp ./zoo.cfg.template ./zoo.cfg
-    for i in $(seq 1 $n); do
-        echo "server.${i}=${name_prefix}${i}:${listening_port}:${election_port}" >> ./zoo.cfg
-    done
-}
+image="mesos:1.2.0"
+name_prefix=mesos-master
+network=mesos
+cluster_name=$name_prefix
+labels="--label mesos-slave=yes"
+port=5050
 
-gen_id_files() {
-    for i in $(seq 1 $n); do
-        echo "${i}" > myid.${i}
-    done
-}
+for i in $(seq 1 $n); do
+    MESOS_ADVERTISE_IP=`hostname -i`
+    MESOS_ADVERTISE_PORT=`. ./get-random-port`
+    MESOS_HOSTNAME_LOOKUP=false
+    MESOS_QUORUM=$quorum
+    MESOS_ZK=$zk
+    MESOS_WORK_DIR=/var/lib/mesos/master
 
-find_or_create_network() {
-    find=$( docker network ls -f "name=${network}" -q )
-    if [[ "$find" == "" ]]; then
-        docker network create $network
-    fi
-}
-
-start_zk_containers() {
-    data_dir=$(grep dataDir zoo.cfg|cut -d "=" -f 2)
-    client_port=$(grep clientPort zoo.cfg|cut -d "=" -f 2)
-    for i in $(seq 1 $n); do
-        name=${name_prefix}${i}
-        docker run -d \
-               -v `pwd`/myid.${i}:${data_dir}/myid \
-               -v `pwd`/zoo.cfg:"/opt/zookeeper/conf/zoo.cfg" \
-               -p ${client_port} \
-               --network $network \
-               --name "$name" \
-               "$image" \
-               $labels \
-               zkServer.sh start-foreground
-
-        docker port $name |grep -E -o "([0-9]+)$"
-    done
-}
-
-gen_cfg
-
-gen_id_files
-
-find_or_create_network
-
-start_zk_containers
+    docker run -d \
+           -p ${MESOS_ADVERTISE_PORT}:$port \
+           -e MESOS_ADVERTISE_IP=$MESOS_ADVERTISE_IP \
+           -e MESOS_ADVERTISE_PORT=$MESOS_ADVERTISE_PORT \
+           -e MESOS_HOSTNAME_LOOKUP=$MESOS_HOSTNAME_LOOKUP \
+           -e MESOS_ZK=$MESOS_ZK \
+           -e MESOS_WORK_DIR=$MESOS_WORK_DIR \
+           -e MESOS_QUORUM=${quorum} \
+           -e MESOS_CLUSTER=$cluster_name \
+           --name "${name_prefix}-${i}" \
+           $labels \
+           ${image} \
+           "mesos-master"
+done
