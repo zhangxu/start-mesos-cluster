@@ -1,0 +1,12 @@
+#!/usr/bin/env bash
+
+    while true; do
+        port=$(($RANDOM % 100 + 10000))
+        netstat -tlnp 2>/dev/null | grep $port > /dev/null
+
+        if [[ $? -ne 0 ]]; then
+            break
+        fi
+    done
+
+    echo -n "$port"

@@ -1,0 +1,40 @@
+#!/usr/bin/env bash
+
+n=$(($1 + 0))
+
+if [[ "$n" == "0" ]]; then
+    n=3
+fi
+
+quorum=$( echo "$n / 2 + 1" | bc )
+zk=$2
+
+image="mesos:1.2.0"
+name_prefix=mesos-master
+network=mesos
+cluster_name=$name_prefix
+labels="--label mesos-master=yes"
+port=5050
+
+for i in $(seq 1 $n); do
+    MESOS_ADVERTISE_IP=`hostname -i`
+    MESOS_ADVERTISE_PORT=`. ./get-random-port`
+    MESOS_HOSTNAME_LOOKUP=false
+    MESOS_QUORUM=$quorum
+    MESOS_ZK=$zk
+    MESOS_WORK_DIR=/var/lib/mesos/master
+
+    docker run -d \
+           -p ${MESOS_ADVERTISE_PORT}:$port \
+           -e MESOS_ADVERTISE_IP=$MESOS_ADVERTISE_IP \
+           -e MESOS_ADVERTISE_PORT=$MESOS_ADVERTISE_PORT \
+           -e MESOS_HOSTNAME_LOOKUP=$MESOS_HOSTNAME_LOOKUP \
+           -e MESOS_ZK=$MESOS_ZK \
+           -e MESOS_WORK_DIR=$MESOS_WORK_DIR \
+           -e MESOS_QUORUM=${quorum} \
+           -e MESOS_CLUSTER=$cluster_name \
+           --name "${name_prefix}-${i}" \
+           $labels \
+           ${image} \
+           "mesos-master"
+done
