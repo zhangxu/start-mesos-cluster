@@ -6,7 +6,6 @@ if [[ "$n" == "0" ]]; then
     n=3
 fi
 
-quorum=$( echo "$n / 2 + 1" | bc )
 zk=$2
 
 image="mesos:1.2.0"
