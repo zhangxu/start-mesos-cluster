@@ -13,8 +13,6 @@ image="mesos:1.2.0"
 name_prefix=mesos-agent
 labels="--label mesos-agent=yes"
 
-mkdir -p agent-logs
-
 for i in $(seq 1 $n); do
     name="${name_prefix}-${i}"
     port=`. ./get-random-port`
