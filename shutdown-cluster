@@ -5,3 +5,8 @@ docker ps -q --filter "label=mesos-slave=yes" | xargs --no-run-if-empty docker s
 
 docker ps -qa --filter "label=mesos-master=yes" | xargs --no-run-if-empty docker rm
 docker ps -qa --filter "label=mesos-slave=yes" | xargs --no-run-if-empty docker rm
+
+
+test -d logs && tar -czvf mesos-cluster.log.`date +"%s"`.tar.gz logs/
+
+rm -rf logs

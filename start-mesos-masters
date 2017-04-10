@@ -12,11 +12,15 @@ zk=$2
 image="mesos:1.2.0"
 name_prefix=mesos-master
 labels="--label mesos-master=yes"
-port=5050
+
 
 for i in $(seq 1 $n); do
     name="${name_prefix}-${i}"
     port=`. ./get-random-port`
+
+    local_log_dir=logs/master/${i}
+    mkdir -p $local_log_dir
+    log_dir=/var/log/${local_log_dir}
 
     docker run -d \
            -p $port:5050 \
@@ -27,7 +31,9 @@ for i in $(seq 1 $n); do
            -e MESOS_ZK="${zk}" \
            -e MESOS_HOSTNAME=`hostname -f` \
            -e MESOS_CLUSTER=mesos \
+           -e MESOS_LOG_DIR=$log_dir \
            --name "${name}" \
+           -v `pwd`/${local_log_dir}:$log_dir \
            $labels \
            ${image} \
            "mesos-master"

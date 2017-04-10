@@ -10,31 +10,32 @@ quorum=$( echo "$n / 2 + 1" | bc )
 zk=$2
 
 image="mesos:1.2.0"
-name_prefix=mesos-master
-network=mesos
-cluster_name=$name_prefix
-labels="--label mesos-slave=yes"
-port=5050
+name_prefix=mesos-agent
+labels="--label mesos-agent=yes"
+
+mkdir -p agent-logs
 
 for i in $(seq 1 $n); do
-    MESOS_ADVERTISE_IP=`hostname -i`
-    MESOS_ADVERTISE_PORT=`. ./get-random-port`
-    MESOS_HOSTNAME_LOOKUP=false
-    MESOS_QUORUM=$quorum
-    MESOS_ZK=$zk
-    MESOS_WORK_DIR=/var/lib/mesos/master
+    name="${name_prefix}-${i}"
+    port=`. ./get-random-port`
+
+    local_log_dir=logs/agent/${i}
+    mkdir -p $local_log_dir
+    log_dir=/var/log/mesos-agent-logs
 
     docker run -d \
-           -p ${MESOS_ADVERTISE_PORT}:$port \
-           -e MESOS_ADVERTISE_IP=$MESOS_ADVERTISE_IP \
-           -e MESOS_ADVERTISE_PORT=$MESOS_ADVERTISE_PORT \
-           -e MESOS_HOSTNAME_LOOKUP=$MESOS_HOSTNAME_LOOKUP \
-           -e MESOS_ZK=$MESOS_ZK \
-           -e MESOS_WORK_DIR=$MESOS_WORK_DIR \
-           -e MESOS_QUORUM=${quorum} \
-           -e MESOS_CLUSTER=$cluster_name \
-           --name "${name_prefix}-${i}" \
+           -p $port:5051 \
+           -e MESOS_ADVERTISE_IP=`hostname -i` \
+           -e MESOS_ADVERTISE_PORT=${port} \
+           -e MESOS_WORK_DIR=/var/lib/mesos/agent \
+           -e MESOS_MASTER="${zk}" \
+           -e MESOS_HOSTNAME=`hostname -f` \
+           -e MESOS_LAUNCHER=posix \
+           -e MESOS_SYSTEMD_ENABLE_SUPPORT=false \
+           -e MESOS_LOG_DIR=${log_dir} \
+           --name "${name}" \
+           -v `pwd`/${local_log_dir}:${log_dir} \
            $labels \
            ${image} \
-           "mesos-master"
+           "mesos-agent"
 done

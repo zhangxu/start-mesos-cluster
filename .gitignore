@@ -1,3 +1,5 @@
 zoo.cfg
 myid.*
 *.tar.gz
+
+logs/*

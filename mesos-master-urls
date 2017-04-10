@@ -1,0 +1,7 @@
+#!/usr/bin/env bash
+
+hostname=`hostname -f`
+
+for container in `docker ps -q --filter "label=mesos-master=yes"`; do
+    grep -E "^5050/tcp" <<<$(docker port $container) | grep -oE "[0-9]+$" | xargs -I {} echo "http://${hostname}:{}"
+done
