@@ -12,6 +12,10 @@ image="mesos:1.2.0"
 name_prefix=mesos-agent
 labels="--label mesos-agent=yes"
 
+script_dir=$(dirname $(readlink -e $BASH_SOURCE))
+
+test -d "${script_dir}/host-shared" || mkdir -p "${script_dir}"/host-shared
+
 for i in $(seq 1 $n); do
     name="${name_prefix}-${i}"
     port=`. ./get-random-port`
@@ -32,6 +36,7 @@ for i in $(seq 1 $n); do
            -e MESOS_LOG_DIR=${log_dir} \
            --name "${name}" \
            -v `pwd`/${local_log_dir}:${log_dir} \
+           -v ${script_dir}/host-shared:/opt/host-shared \
            $labels \
            ${image} \
            "mesos-agent"

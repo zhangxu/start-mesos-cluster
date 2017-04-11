@@ -3,3 +3,4 @@ myid.*
 *.tar.gz
 
 logs/*
+host-shared/*
