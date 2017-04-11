@@ -1,10 +1,10 @@
 #!/usr/bin/env bash
 
 docker ps -q --filter "label=mesos-master=yes" | xargs --no-run-if-empty docker stop -t 0
-docker ps -q --filter "label=mesos-slave=yes" | xargs --no-run-if-empty docker stop -t 0
+docker ps -q --filter "label=mesos-agent=yes" | xargs --no-run-if-empty docker stop -t 0
 
 docker ps -qa --filter "label=mesos-master=yes" | xargs --no-run-if-empty docker rm
-docker ps -qa --filter "label=mesos-slave=yes" | xargs --no-run-if-empty docker rm
+docker ps -qa --filter "label=mesos-agent=yes" | xargs --no-run-if-empty docker rm
 
 
 test -d logs && tar -czvf mesos-cluster.log.`date +"%s"`.tar.gz logs/
