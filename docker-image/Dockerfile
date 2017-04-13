@@ -4,13 +4,14 @@ ENTRYPOINT ["/bin/bash", "-l", "-i"]
 
 ADD ./jdk-8u121-linux-x64.tar.gz /opt/
 ADD ./apache-maven-3.3.9-bin.tar.gz /opt/
+ADD ./docker-1.13.1.tgz /opt/
 ADD ./mesos-1.2.0.tar.gz /opt/
 
 RUN mv /opt/jdk* /opt/jdk && mv /opt/apache-maven-* /opt/maven
 
 ADD ./maven-settings.xml /opt/maven/conf/settings.xml
 
-RUN echo "PATH=/opt/jdk/bin:/opt/maven/bin:\$PATH" > /etc/profile.d/path.sh && \
+RUN echo "PATH=/opt/jdk/bin:/opt/maven/bin:/opt/docker/:\$PATH" > /etc/profile.d/path.sh && \
   echo "JAVA_HOME=/opt/jdk" >> /etc/profile.d/path.sh
 
 RUN yum update -y && \

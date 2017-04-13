@@ -1,6 +1,7 @@
 zoo.cfg
 myid.*
 *.tar.gz
+*.tgz
 
 logs/*
 host-shared/*
