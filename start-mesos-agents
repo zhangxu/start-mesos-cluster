@@ -35,6 +35,7 @@ for i in $(seq 1 $n); do
            -e MESOS_SYSTEMD_ENABLE_SUPPORT=false \
            -e MESOS_LOG_DIR=${log_dir} \
            --name "${name}" \
+           -v /var/run/docker.sock:/var/run/docker.sock \
            -v `pwd`/${local_log_dir}:${log_dir} \
            -v ${script_dir}/host-shared:/opt/host-shared \
            $labels \
