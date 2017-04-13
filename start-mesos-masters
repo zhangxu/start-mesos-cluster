@@ -36,5 +36,5 @@ for i in $(seq 1 $n); do
            -v `pwd`/${local_log_dir}:$log_dir \
            $labels \
            ${image} \
-           "mesos-master"
+           -c mesos-master
 done

@@ -39,5 +39,5 @@ for i in $(seq 1 $n); do
            -v ${script_dir}/host-shared:/opt/host-shared \
            $labels \
            ${image} \
-           "mesos-agent"
+           -c mesos-agent
 done
