@@ -1,0 +1,3 @@
+#!/usr/bin/env bash
+
+docker build --rm -t mesos:1.2.0 `printenv |grep -i proxy|awk '{print "--build-arg " $0}'` .
