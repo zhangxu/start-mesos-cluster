@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+hostname=`hostname -f`
+
+docker ps -q --filter "label=marathon=yes" | \
+ xargs -I {} docker port {} | \
+ grep -E "^8080/tcp" | \
+ grep -oE "[0-9]+$" | \
+ xargs -I {} echo "http://${hostname}:{}"
