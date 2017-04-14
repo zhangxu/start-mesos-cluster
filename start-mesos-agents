@@ -6,7 +6,7 @@ if [[ "$n" == "0" ]]; then
     n=3
 fi
 
-zk=$2
+zk=$2/mesos
 
 image="mesos:1.2.0-cut-1"
 name_prefix=mesos-agent

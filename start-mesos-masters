@@ -7,7 +7,7 @@ if [[ "$n" == "0" ]]; then
 fi
 
 quorum=$( echo "$n / 2 + 1" | bc )
-zk=$2
+zk=$2/mesos
 
 image="mesos:1.2.0"
 name_prefix=mesos-master
