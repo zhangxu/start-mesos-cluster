@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+image="mesos:1.2.0-cut-2"
+name=marathon
+labels="--label marathon=yes"
+
+port=`. ./get-random-port`
+
+local_log_dir=logs/marathon
+mkdir -p $local_log_dir
+log_dir=/var/log/marathon
+
+master=$1/mesos
+zk=$1/marathon
+
+cmd="/opt/marathon/bin/start --master $master --zk $zk --hostname `hostname -f` --webui_url http://`hostname -f`:$port 2>&1 | tee $log_dir/marathon.out"
+
+docker run -d \
+       -p $port:8080 \
+       --name "${name}" \
+       -v `pwd`/${local_log_dir}:${log_dir} \
+       $labels \
+       ${image} \
+       -c "$cmd"
