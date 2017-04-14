@@ -8,7 +8,7 @@ fi
 
 zk=$2
 
-image="mesos:1.2.0"
+image="mesos:1.2.0-cut-1"
 name_prefix=mesos-agent
 labels="--label mesos-agent=yes"
 
@@ -33,6 +33,7 @@ for i in $(seq 1 $n); do
            -e MESOS_HOSTNAME=`hostname -f` \
            -e MESOS_LAUNCHER=posix \
            -e MESOS_SYSTEMD_ENABLE_SUPPORT=false \
+           -e MESOS_CONTAINERIZERS=docker \
            -e MESOS_LOG_DIR=${log_dir} \
            --name "${name}" \
            -v /var/run/docker.sock:/var/run/docker.sock \
