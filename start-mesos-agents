@@ -8,7 +8,7 @@ fi
 
 zk=$2/mesos
 
-image="mesos:1.2.0-cut-1"
+image=$(grep -E "^agent=" images | cut -d "=" -f 2)
 name_prefix=mesos-agent
 labels="--label mesos-agent=yes"
 

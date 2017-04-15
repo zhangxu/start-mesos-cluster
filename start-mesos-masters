@@ -9,10 +9,9 @@ fi
 quorum=$( echo "$n / 2 + 1" | bc )
 zk=$2/mesos
 
-image="mesos:1.2.0"
+image=$(grep -E "^master=" images | cut -d "=" -f 2)
 name_prefix=mesos-master
 labels="--label mesos-master=yes"
-
 
 for i in $(seq 1 $n); do
     name="${name_prefix}-${i}"
