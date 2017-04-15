@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+echo "rmr /mesos" | zkCli.sh -server $1
+echo "rmr /marathon" | zkCli.sh -server $1
