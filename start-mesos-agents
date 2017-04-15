@@ -8,11 +8,11 @@ fi
 
 zk=$2/mesos
 
-image=$(grep -E "^agent=" images | cut -d "=" -f 2)
+script_dir=$(dirname $(readlink -e $BASH_SOURCE))
+
+image=$(grep -E "^agent=" "${script_dir}/images" | cut -d "=" -f 2)
 name_prefix=mesos-agent
 labels="--label mesos-agent=yes"
-
-script_dir=$(dirname $(readlink -e $BASH_SOURCE))
 
 test -d "${script_dir}/host-shared" || mkdir -p "${script_dir}"/host-shared
 
@@ -20,8 +20,8 @@ for i in $(seq 1 $n); do
     name="${name_prefix}-${i}"
     port=`. ./get-random-port`
 
-    local_log_dir=logs/agent/${i}
-    mkdir -p $local_log_dir
+    local_log_dir="${script_dir}/logs/agent/${i}"
+    mkdir -p "$local_log_dir"
     log_dir=/var/log/mesos-agent-logs
 
     docker run -d \
@@ -37,8 +37,8 @@ for i in $(seq 1 $n); do
            -e MESOS_LOG_DIR=${log_dir} \
            --name "${name}" \
            -v /var/run/docker.sock:/var/run/docker.sock \
-           -v `pwd`/${local_log_dir}:${log_dir} \
-           -v ${script_dir}/host-shared:/opt/host-shared \
+           -v "${local_log_dir}":${log_dir} \
+           -v "${script_dir}"/host-shared:/opt/host-shared \
            $labels \
            ${image} \
            -c mesos-agent

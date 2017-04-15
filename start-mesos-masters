@@ -9,7 +9,9 @@ fi
 quorum=$( echo "$n / 2 + 1" | bc )
 zk=$2/mesos
 
-image=$(grep -E "^master=" images | cut -d "=" -f 2)
+script_dir=$(dirname $(readlink -e $BASH_SOURCE))
+
+image=$(grep -E "^master=" "${script_dir}/images" | cut -d "=" -f 2)
 name_prefix=mesos-master
 labels="--label mesos-master=yes"
 
@@ -17,8 +19,8 @@ for i in $(seq 1 $n); do
     name="${name_prefix}-${i}"
     port=`. ./get-random-port`
 
-    local_log_dir=logs/master/${i}
-    mkdir -p $local_log_dir
+    local_log_dir="${script_dir}/logs/master/${i}"
+    mkdir -p "$local_log_dir"
     log_dir=/var/log/${local_log_dir}
 
     docker run -d \
@@ -32,7 +34,7 @@ for i in $(seq 1 $n); do
            -e MESOS_CLUSTER=mesos \
            -e MESOS_LOG_DIR=$log_dir \
            --name "${name}" \
-           -v `pwd`/${local_log_dir}:$log_dir \
+           -v "${local_log_dir}":$log_dir \
            $labels \
            ${image} \
            -c mesos-master
