@@ -20,7 +20,7 @@ for i in $(seq 1 $n); do
     name="${name_prefix}-${i}"
     port=`. ./get-random-port`
 
-    local_log_dir="${script_dir}/logs/agent/${i}"
+    local_log_dir="${script_dir}/logs/agents/${i}"
     mkdir -p "$local_log_dir"
     log_dir=/var/log/mesos-agent-logs
 
