@@ -16,7 +16,11 @@ labels="--label mesos-agent=yes"
 
 test -d "${script_dir}/host-shared" || mkdir -p "${script_dir}"/host-shared
 
-for i in $(seq 1 $n); do
+max=$(docker ps -a --filter "label=mesos-agent=yes" --format {{.Names}}| grep -oE "[0-9]+$" | sort -nr | head -1)
+from=$((max+1))
+to=$((max+n))
+
+for i in $(seq $from $to); do
     name="${name_prefix}-${i}"
     port=`. ./get-random-port`
 
